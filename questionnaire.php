@@ -1,6 +1,13 @@
 <?php
-session_start();
-$_SESSION["access"] = false;
+//session_start();
+//$_SESSION["access"] = false;
+if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
+    $ip_address = $_SERVER['HTTP_CLIENT_IP'];
+} elseif (!empty($_SERVER['HTTP_X_FORWARDED_FOR'])) {
+    $ip_address = $_SERVER['HTTP_X_FORWARDED_FOR'];
+} else {
+    $ip_address = $_SERVER['REMOTE_ADDR'];
+}
 ?>
 
 <html lang="de">
@@ -31,15 +38,15 @@ $_SESSION["access"] = false;
                 <div class="card-heading">
                     <h2 class="title">Workload-Erfassung</h2>
                 </div>
-                <div class="card-body" id="checksession">
-                    <div class="login form-row">
-                        <label for="accesstoken" style='margin-left: 20px;'>Access Token</label></label>
-                        <input class='input--style-1' type='text' id='accesstoken' name='accesstoken'>
-                        <button type="submit" id="check" class="btn--next">Check</button>
-                    </div>
-                </div>
+<!--                <div class="card-body" id="checksession">-->
+<!--                    <div class="login form-row">-->
+<!--                        <label for="accesstoken" style='margin-left: 20px;'>Access Token</label></label>-->
+<!--                        <input class='input--style-1' type='text' id='accesstoken' name='accesstoken'>-->
+<!--                        <button type="submit" id="check" class="btn--next">Check</button>-->
+<!--                    </div>-->
+<!--                </div>-->
 
-                <div class="card-body" id="questionnaire" style="display: none">
+                <div class="card-body" id="questionnaire" style="display: block">
                     <form class="wizard-container" method="POST" action="insert.php" id="js-wizard-form">
                         <ul class="tab-list">
                             <li class="tab-list__item active">
@@ -77,7 +84,7 @@ $_SESSION["access"] = false;
                                                 </select>
                                                 <span class="select-btn">
 														<i class="zmdi zmdi-chevron-down"></i>
-													</span>
+												</span>
                                             </div>
                                         </div>
 
@@ -86,7 +93,6 @@ $_SESSION["access"] = false;
                                             <div class="form-holder form-holder-2">
                                                 <select name="sumwinyear" id="sumwinyear" class="form-control">
                                                     <option value="" disabled selected>Jahrgang</option>
-
                                                     <?php
                                                     $month = (int)date("m");
                                                     $year = (int)date("Y");
@@ -235,6 +241,7 @@ $_SESSION["access"] = false;
 
                         </div>
                         <input type="hidden" name="currenttoken" id="currenttoken">
+                        <input type="hidden" name="ip" id="ip" value="<?php echo $ip_address ?>">
                     </form>
                 </div>
 
@@ -259,41 +266,79 @@ $_SESSION["access"] = false;
 
     <script>
 
-        document.getElementById("check").onclick = function() {
-
-            $.ajax({
-                url:'checkAccess.php',
-                type:'post',
-                data:$('#accesstoken').serialize(),
-                success:function(output){
-                    //alert(output);
-                    if (output == "invalid") {
-                        alert("Falsches Token, Versuchen Sie nochmal!");
-                    } else {
-                        <?php $_SESSION["access"] = true; ?>
-                        $("#currenttoken").val(output);
-                        $("#checksession").hide();
-                        $("#questionnaire").show();
-                    }
-
-                }
-            });
-
-        }
+        //document.getElementById("check").onclick = function() {
+        //
+        //    $.ajax({
+        //        url:'checkAccess.php',
+        //        type:'post',
+        //        data:$('#accesstoken').serialize(),
+        //        success:function(output){
+        //            //alert(output);
+        //            if (output == "invalid") {
+        //                alert("Falsches Token, Versuchen Sie nochmal!");
+        //            } else {
+        //                <?php //$_SESSION["access"] = true; ?>
+        //                $("#currenttoken").val(output);
+        //                $("#checksession").hide();
+        //                $("#questionnaire").show();
+        //            }
+        //
+        //        }
+        //    });
+        //
+        //}
 
         document.getElementById("finish").onclick = function() {
 
-            // $.ajax({
-            //     url:'insert.php',
-            //     type:'post',
-            //     data:$('#js-wizard-form').serialize(),
-            //     success:function(){
-            //         $('#js-wizard-form').html("<h1>Vielen Dank für Ihre Teilnahme!</h1>");
-            //     }
-            // });
+            checkCookie();
+            //document.getElementById("js-wizard-form").submit();
+        }
 
-            document.getElementById("js-wizard-form").submit();
+        function setCookie(cname,cvalue,exdays) {
+            var d = new Date();
+            d.setTime(d.getTime() + (exdays*24*60*60*1000));
+            var expires = "expires=" + d.toGMTString();
+            document.cookie = cname + "=" + cvalue + ";" + expires + ";path=/";
+        }
 
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie = decodeURIComponent(document.cookie);
+            var ca = decodedCookie.split(';');
+            for(var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        function checkCookie() {
+            var value=getCookie("value");
+            $.ajax({
+                url:'checkIP.php',
+                type:'post',
+                data: { ip:'<?php echo $ip_address ?>' },
+                success:function(output){
+                    if (output == "true" || value != "") {
+                        alert("Sie haben den Fragebogen schon abgegeben!");
+                    } else {
+                        setCookie("value", true, 30);
+                        $.ajax({
+                            url:'insert.php',
+                            type:'post',
+                            data:$('#js-wizard-form').serialize(),
+                            success:function(){
+                                $('#js-wizard-form').html("<h1>Vielen Dank für Ihre Teilnahme!</h1>");
+                            }
+                        });
+                    }
+                }
+            });
         }
     </script>
 

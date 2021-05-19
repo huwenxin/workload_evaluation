@@ -1,6 +1,6 @@
 <?php
 
-    //$sem = $_POST['id'];
+    $ip = $_POST['ip'];
     $subject = $_POST['subject'];
     $semyear = $_POST['sumwinyear'];
 
@@ -11,6 +11,14 @@
     if (!$con) {
         die('Verbindung schlug fehl: ' . mysqli_error($con));
     }
+
+    $sqlip="INSERT INTO ip (ip_address) VALUES ('$ip')";
+    $result = mysqli_query($con,$sqlip);
+    if (!$result) {
+        echo 'Konnte Abfrage nicht ausführen: ' . mysqli_error($con);
+        exit;
+    }
+
 
     $sqlNum = "SELECT MAX(number) FROM workload WHERE semYear = '$semyear' AND studyProSem = '$studyProSem'";
     if ($result=mysqli_query($con,$sqlNum)) {
@@ -43,28 +51,29 @@
                if (!$result) {
                    echo 'Konnte Abfrage nicht ausführen: ' . mysqli_error($con);
                    exit;
-               } else {
-                   $accesstoken = $_POST['currenttoken'];
-
-                   $checkDup = "SELECT COUNT(id) FROM workload.token WHERE id='$accesstoken'";
-                   if ($result=mysqli_query($con,$checkDup)) {
-                       $n = mysqli_fetch_array($result)[0];
-                       if ($n > 1) {
-                           $sqlDel="DELETE FROM token WHERE id='$accesstoken' ORDER BY date LIMIT 1";
-                           if (!mysqli_query($con,$sqlDel)) {
-                               echo 'Konnte Abfrage nicht ausführen: ' . mysqli_error($con);
-                               exit;
-                           }
-                       } else {
-                           $sqlDel="DELETE FROM token where id = '$accesstoken'";
-                           if (!mysqli_query($con,$sqlDel)) {
-                               echo 'Konnte Abfrage nicht ausführen: ' . mysqli_error($con);
-                               exit;
-                           }
-                       }
-                   }
-
                }
+//               else {
+//                   $accesstoken = $_POST['currenttoken'];
+//
+//                   $checkDup = "SELECT COUNT(id) FROM workload.token WHERE id='$accesstoken'";
+//                   if ($result=mysqli_query($con,$checkDup)) {
+//                       $n = mysqli_fetch_array($result)[0];
+//                       if ($n > 1) {
+//                           $sqlDel="DELETE FROM token WHERE id='$accesstoken' ORDER BY date LIMIT 1";
+//                           if (!mysqli_query($con,$sqlDel)) {
+//                               echo 'Konnte Abfrage nicht ausführen: ' . mysqli_error($con);
+//                               exit;
+//                           }
+//                       } else {
+//                           $sqlDel="DELETE FROM token where id = '$accesstoken'";
+//                           if (!mysqli_query($con,$sqlDel)) {
+//                               echo 'Konnte Abfrage nicht ausführen: ' . mysqli_error($con);
+//                               exit;
+//                           }
+//                       }
+//                   }
+//
+//               }
 
            }
 
