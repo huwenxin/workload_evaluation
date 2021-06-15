@@ -245,12 +245,12 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
                     </form>
                 </div>
 
-
-
-
-
             </div>
         </div>
+        <div id="cookie">
+            Diese Website verwendet Cookies. Durch die Nutzung dieser Website akzeptieren Sie die Benutzung von Cookies.
+            <a id="acceptCookies">OK</a>
+        <div>
     </div>
 
 
@@ -265,6 +265,9 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
     <script src="js/global.js"></script>
 
     <script>
+        document.getElementById('acceptCookies').onclick = function() {
+            document.getElementById('cookie').remove();
+        };
 
         //document.getElementById("check").onclick = function() {
         //
@@ -343,5 +346,30 @@ if (!empty($_SERVER['HTTP_CLIENT_IP'])) {
     </script>
 
 </body>
+<style>
+    #cookie {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        right: 0;
+        padding: 0.5em 1em;
+        text-align: center;
+        background: black;
+        color: white;
+    }
+
+    #cookie #acceptCookies {
+        margin-left: 20px;
+        display: inline-block;
+        padding: 0.25em 1em;
+        border-radius: 5px;
+        border: 1px solid white;
+    }
+
+    #cookie #acceptCookies:hover {
+        color: black;
+        background: white;
+    }
+</style>
 
 </html>
