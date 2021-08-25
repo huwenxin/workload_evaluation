@@ -81,7 +81,7 @@
                                             die('Verbindung schlug fehl: ' . mysqli_error($con));
                                         }
 
-                                        $sqlSemYear = "SELECT DISTINCT semYear, MAX(number) as number FROM workload WHERE semYear LIKE 'win%' AND studyProSem = '".$id."' GROUP BY semYear ORDER BY semYear DESC LIMIT 4";
+                                        $sqlSemYear = "SELECT DISTINCT semYear, MAX(number) as number FROM workload WHERE (semYear LIKE 'win%' OR semYear LIKE 'sum%') AND studyProSem = '".$id."' GROUP BY semYear ORDER BY semYear DESC LIMIT 4";
 
                                         if ($result=mysqli_query($con,$sqlSemYear)) {
                                             $num = 0;
